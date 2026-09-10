@@ -527,6 +527,7 @@ function renderPhotostrip(){
     const img = document.createElement("img");
     img.className = "strip-photo";
     img.src = src;
+    img.draggable = false;
     strip.appendChild(img);
   });
   placedStickers.forEach(renderPlacedSticker);
@@ -554,6 +555,7 @@ function renderPlacedSticker(placed){
   img.src = placed.src;
   img.className = "placed-sticker";
   img.dataset.id = placed.id;
+  img.draggable = false;
   img.style.left = placed.xPct + "%";
   img.style.top = placed.yPct + "%";
   img.style.width = placed.sizePct + "%";
@@ -565,7 +567,10 @@ function makeStickerDraggable(el, placed){
   let dragging = false;
   let lastX = 0, lastY = 0;
 
+  el.addEventListener("dragstart", (e) => e.preventDefault());
+
   el.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
     dragging = true;
     el.setPointerCapture(e.pointerId);
     lastX = e.clientX; lastY = e.clientY;
@@ -573,6 +578,7 @@ function makeStickerDraggable(el, placed){
   });
   el.addEventListener("pointermove", (e) => {
     if(!dragging) return;
+    e.preventDefault();
     const strip = $("#photostrip");
     const rect = strip.getBoundingClientRect();
     const dxPct = ((e.clientX - lastX) / rect.width) * 100;
@@ -583,8 +589,16 @@ function makeStickerDraggable(el, placed){
     el.style.top = placed.yPct + "%";
     lastX = e.clientX; lastY = e.clientY;
   });
-  el.addEventListener("pointerup", () => { dragging = false; });
-  el.addEventListener("pointercancel", () => { dragging = false; });
+  const endDrag = (e) => {
+    if(!dragging) return;
+    dragging = false;
+    if(e && e.pointerId !== undefined && el.hasPointerCapture && el.hasPointerCapture(e.pointerId)){
+      el.releasePointerCapture(e.pointerId);
+    }
+  };
+  el.addEventListener("pointerup", endDrag);
+  el.addEventListener("pointercancel", endDrag);
+  el.addEventListener("lostpointercapture", () => { dragging = false; });
   el.addEventListener("dblclick", () => {
     placedStickers = placedStickers.filter(p => p.id !== placed.id);
     el.remove();
