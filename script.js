@@ -533,17 +533,44 @@ function renderPhotostrip(){
   placedStickers.forEach(renderPlacedSticker);
 }
 
+// Corner slots: 2 per photo (left corner, right corner), near the frame edge.
+function computeCornerSlots(){
+  const n = capturedShots.length;
+  if(n === 0) return [];
+  const padding = 10, gap = 8;
+  const shotH = camCanvas.height || 220;
+  const stageH = padding*2 + shotH*n + gap*(n-1);
+  const slots = [];
+  for(let i = 0; i < n; i++){
+    const photoTop = padding + i*(shotH+gap);
+    const yPct = ((photoTop + shotH*0.18) / stageH) * 100;
+    slots.push({ xPct: 10, yPct }); // left corner
+    slots.push({ xPct: 90, yPct }); // right corner
+  }
+  return slots;
+}
+
 function addStickerToStrip(stickerAsset){
   if(capturedShots.length === 0) return; // need a strip to place onto
-  const jitterX = (Math.random()*20 - 10);
-  const jitterY = (Math.random()*20 - 10);
+  const slots = computeCornerSlots();
+  const usedSlots = new Set(placedStickers.map(p => p.slotIndex));
+  let slotIndex = -1;
+  for(let i = 0; i < slots.length; i++){
+    if(!usedSlots.has(i)){ slotIndex = i; break; }
+  }
+  if(slotIndex === -1){
+    camStatus.textContent = "all 6 corners are full — remove one to add another";
+    return;
+  }
+  const slot = slots[slotIndex];
   const placed = {
     id: stickerIdSeq++,
+    slotIndex,
     key: stickerAsset.key,
     src: stickerAsset.src,
-    xPct: 50 + jitterX,
-    yPct: 50 + jitterY,
-    sizePct: 20,
+    xPct: slot.xPct,
+    yPct: slot.yPct,
+    sizePct: 16,
   };
   placedStickers.push(placed);
   renderPlacedSticker(placed);
@@ -556,53 +583,15 @@ function renderPlacedSticker(placed){
   img.className = "placed-sticker";
   img.dataset.id = placed.id;
   img.draggable = false;
+  img.title = "double-click to remove";
   img.style.left = placed.xPct + "%";
   img.style.top = placed.yPct + "%";
   img.style.width = placed.sizePct + "%";
-  makeStickerDraggable(img, placed);
-  strip.appendChild(img);
-}
-
-function makeStickerDraggable(el, placed){
-  let dragging = false;
-  let lastX = 0, lastY = 0;
-
-  el.addEventListener("dragstart", (e) => e.preventDefault());
-
-  el.addEventListener("pointerdown", (e) => {
-    e.preventDefault();
-    dragging = true;
-    el.setPointerCapture(e.pointerId);
-    lastX = e.clientX; lastY = e.clientY;
-    el.style.zIndex = 10;
-  });
-  el.addEventListener("pointermove", (e) => {
-    if(!dragging) return;
-    e.preventDefault();
-    const strip = $("#photostrip");
-    const rect = strip.getBoundingClientRect();
-    const dxPct = ((e.clientX - lastX) / rect.width) * 100;
-    const dyPct = ((e.clientY - lastY) / rect.height) * 100;
-    placed.xPct += dxPct;
-    placed.yPct += dyPct;
-    el.style.left = placed.xPct + "%";
-    el.style.top = placed.yPct + "%";
-    lastX = e.clientX; lastY = e.clientY;
-  });
-  const endDrag = (e) => {
-    if(!dragging) return;
-    dragging = false;
-    if(e && e.pointerId !== undefined && el.hasPointerCapture && el.hasPointerCapture(e.pointerId)){
-      el.releasePointerCapture(e.pointerId);
-    }
-  };
-  el.addEventListener("pointerup", endDrag);
-  el.addEventListener("pointercancel", endDrag);
-  el.addEventListener("lostpointercapture", () => { dragging = false; });
-  el.addEventListener("dblclick", () => {
+  img.addEventListener("dblclick", () => {
     placedStickers = placedStickers.filter(p => p.id !== placed.id);
-    el.remove();
+    img.remove();
   });
+  strip.appendChild(img);
 }
 
 $("#btn-clear-stickers").addEventListener("click", () => {
