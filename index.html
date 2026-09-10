@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ferris Müller Karaoke Box</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,500;1,700&family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- SPARKLE CURSOR CANVAS (the one animated sparkle we keep) -->
+<canvas id="sparkle-canvas"></canvas>
+
+<!-- top garland: sakura chain -->
+<div class="sakura-topbar" aria-hidden="true"></div>
+
+<!-- ============ HEADER ============ -->
+<header class="box-header">
+  <img class="logo-img" src="logo-title.png" alt="Ferris Mueller Karaoke Box">
+</header>
+
+<!-- ============ THE BOX ============ -->
+<section id="box-room" class="box-room">
+
+  <div class="room-main">
+
+    <!-- TV / retro media player -->
+    <div class="tv-unit">
+      <div class="tv-frame">
+
+        <div class="tv-titlebar">
+          <span class="tv-dots"><i></i><i></i><i></i></span>
+          <span class="tv-titletext" id="tv-titletext">ferris_player.exe</span>
+          <span class="tv-winicons">_ &#9633; &times;</span>
+        </div>
+        <div class="tv-menubar">File&nbsp;&nbsp;Edit&nbsp;&nbsp;View&nbsp;&nbsp;Window&nbsp;&nbsp;Help</div>
+
+        <div class="tv-screen" id="tv-screen">
+          <div class="tv-idle" id="tv-idle">
+            <p class="tv-idle-title">nothing playing</p>
+            <p class="tv-idle-sub">add a song, then hit play &rarr;</p>
+            <button id="btn-start-next" class="pill-btn primary small" hidden>play next in queue</button>
+          </div>
+
+          <div class="tv-playing" id="tv-playing" hidden>
+            <div class="tv-video-wrap" id="tv-video-wrap" hidden>
+              <div id="yt-player"></div>
+            </div>
+            <div class="tv-no-video" id="tv-no-video" hidden>
+              <p class="np-label">now singing</p>
+              <h3 id="np-title">—</h3>
+              <p id="np-lyric" class="np-lyric">♪ ♪ ♪</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- scrub bar + time, like the retro player -->
+        <div class="tv-scrub-row">
+          <span class="tv-time" id="tv-time-current">00:00:00</span>
+          <div class="tv-scrub-track" id="tv-scrub-track">
+            <div class="tv-scrub-fill" id="tv-scrub-fill"></div>
+            <div class="tv-scrub-handle" id="tv-scrub-handle"></div>
+          </div>
+          <span class="tv-time" id="tv-time-total">00:00:00</span>
+        </div>
+
+        <!-- transport controls -->
+        <div class="tv-transport">
+          <div class="tv-volume">
+            <span class="tv-vol-label">vol</span>
+            <input type="range" id="tv-volume-slider" min="0" max="100" value="70">
+          </div>
+          <div class="tv-transport-buttons">
+            <button id="tv-btn-restart" class="tv-round-btn" title="restart">&#9198;</button>
+            <button id="tv-btn-back" class="tv-round-btn" title="back 10s">&#9194;</button>
+            <button id="tv-btn-playpause" class="tv-round-btn tv-round-btn-main" title="play/pause">&#9654;</button>
+            <button id="tv-btn-fwd" class="tv-round-btn" title="forward 10s">&#9193;</button>
+            <button id="tv-btn-skip" class="tv-round-btn" title="skip song">&#9197;</button>
+          </div>
+        </div>
+
+        <!-- manual (no-video) controls -->
+        <div class="tv-controls" id="tv-manual-controls" hidden>
+          <button id="btn-sing" class="pill-btn primary">finish song</button>
+          <button id="btn-skip" class="pill-btn ghost small">skip</button>
+        </div>
+      </div>
+
+      <div id="score-card" class="score-card" hidden>
+        <p class="score-num" id="score-num">0%</p>
+        <p class="score-label" id="score-label">—</p>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+
+      <div class="panel">
+        <h3 class="panel-title">search your library</h3>
+        <input type="text" id="library-search-input" class="search-input" placeholder="search songs (your folder loads here later)">
+        <ul class="song-book-list" id="library-results-list">
+          <li class="song-book-empty">library's empty — waiting on your song folder!</li>
+        </ul>
+      </div>
+
+      <div class="panel">
+        <h3 class="panel-title">play from YouTube</h3>
+        <p class="panel-sub">paste a link for a specific song</p>
+        <form id="add-song-form" class="add-song-form">
+          <input id="song-title-input" type="text" placeholder="song title" required>
+          <input id="song-singer-input" type="text" placeholder="singer name" required>
+          <input id="song-url-input" type="url" placeholder="youtube link" required>
+          <button type="submit" class="pill-btn primary small">add to queue</button>
+        </form>
+      </div>
+
+      <div class="panel queue-panel">
+        <h3 class="panel-title">up next <span class="pill-tag" id="queue-count">0</span></h3>
+        <ol class="queue-list" id="queue-list">
+          <li class="queue-empty">queue's empty — add something!</li>
+        </ol>
+      </div>
+
+    </aside>
+  </div>
+
+  <!-- Bottom bar (flower-chain gif sits in its background via CSS) -->
+  <div class="room-bottom">
+    <button class="pill-btn ghost" id="btn-guestbook">guestbook</button>
+    <button class="pill-btn ghost" id="btn-photobooth">photo booth</button>
+  </div>
+</section>
+
+<!-- ============ MODAL: GUESTBOOK ============ -->
+<div id="modal-guestbook" class="modal-overlay">
+  <div class="modal-box">
+    <button class="modal-close" data-close>&times;</button>
+    <h2 class="modal-title">guestbook</h2>
+    <p class="modal-sub">leave a stamp for the next singer</p>
+    <form id="guestbook-form" class="guestbook-form">
+      <input id="guestbook-name" type="text" placeholder="your name" required maxlength="24">
+      <textarea id="guestbook-note" placeholder="how was your night?" required maxlength="140"></textarea>
+      <div class="stamp-picker" id="stamp-picker"></div>
+      <button type="submit" class="pill-btn primary small">stamp it</button>
+    </form>
+    <ul class="guestbook-list" id="guestbook-list"></ul>
+  </div>
+</div>
+
+<!-- ============ MODAL: PHOTO BOOTH ============ -->
+<div id="modal-photobooth" class="modal-overlay">
+  <div class="modal-box photobooth-box">
+    <button class="modal-close" data-close>&times;</button>
+    <h2 class="modal-title">photo booth</h2>
+    <p class="modal-sub">3 shots, vintage flash, just like the real machine</p>
+
+    <div class="cam-stage">
+      <video id="cam-video" autoplay playsinline muted></video>
+      <div class="cam-countdown" id="cam-countdown" hidden>3</div>
+      <div class="cam-flash" id="cam-flash"></div>
+      <p class="cam-status" id="cam-status">allow camera access to begin</p>
+    </div>
+
+    <div class="cam-controls">
+      <button id="btn-cam-start" class="pill-btn primary small">turn on camera</button>
+      <button id="btn-cam-shoot" class="pill-btn primary small" hidden>take strip (3 shots)</button>
+      <button id="btn-cam-retake" class="pill-btn ghost small" hidden>retake</button>
+    </div>
+
+    <canvas id="cam-canvas" hidden></canvas>
+
+    <p class="mini-label">frame</p>
+    <div class="sticker-row" id="frame-row"></div>
+
+    <p class="mini-label">stickers — click to add, drag to place, double-click to remove</p>
+    <div class="sticker-row" id="sticker-row"></div>
+    <button id="btn-clear-stickers" class="pill-btn ghost small" type="button">clear placed stickers</button>
+
+    <div class="photostrip-wrap" id="photostrip-wrap">
+      <div class="photostrip" id="photostrip"></div>
+    </div>
+    <button id="btn-cam-download" class="pill-btn primary" hidden>save strip to computer</button>
+  </div>
+</div>
+
+<!-- ============ ENCORE OVERLAY ============ -->
+<div id="encore-overlay" class="encore-overlay">
+  <div class="encore-text">Encore!!</div>
+</div>
+
+<canvas id="confetti-canvas"></canvas>
+
+<script src="script.js"></script>
+</body>
+</html>
