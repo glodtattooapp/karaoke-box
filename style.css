@@ -26,11 +26,11 @@ body{
   color:var(--ink);
   overflow-x:hidden;
   background-image:url('bg-pink-desktop.jpg');
-  background-size:cover;
-  background-position:center top;
+  background-size:contain;
+  background-position:center center;
   background-attachment:fixed;
   background-repeat:no-repeat;
-  background-color:#fbe8ef;
+  background-color:#fdf1fa;
   min-height:100vh;
 }
 
@@ -70,8 +70,22 @@ input,textarea{font-family:inherit;}
 
 /* ================= HEADER ================= */
 .box-header{
+  position:relative;
   text-align:center;
   padding:1.6rem 1.2rem .6rem;
+}
+.header-gif-girl{
+  position:absolute;
+  top:.5rem;
+  left:1.2rem;
+  width:76px;
+  height:auto;
+  z-index:2;
+  filter:drop-shadow(0 4px 10px rgba(107,63,92,.3));
+  pointer-events:none;
+}
+@media (max-width:640px){
+  .header-gif-girl{ width:52px; top:.3rem; left:.6rem; }
 }
 .logo-img{
   max-width:min(560px, 88vw);
@@ -212,6 +226,15 @@ input,textarea{font-family:inherit;}
 
 /* ---------- Sidebar ---------- */
 .sidebar{display:flex; flex-direction:column; gap:1rem;}
+.sidebar-gif-music{
+  align-self:flex-end;
+  width:64px;
+  height:auto;
+  margin:-20px 4px -20px 0;
+  z-index:3;
+  pointer-events:none;
+  filter:drop-shadow(0 4px 8px rgba(107,63,92,.35));
+}
 .panel{
   background:linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,.22));
   -webkit-backdrop-filter:blur(14px) saturate(160%);
