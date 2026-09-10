@@ -70,25 +70,25 @@ input,textarea{font-family:inherit;}
 
 /* ================= HEADER ================= */
 .box-header{
-  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:.5rem;
   text-align:center;
   padding:1.6rem 1.2rem .6rem;
+  flex-wrap:wrap;
 }
 .header-gif-girl{
-  position:absolute;
-  top:.5rem;
-  left:1.2rem;
-  width:76px;
+  width:120px;
   height:auto;
-  z-index:2;
+  flex-shrink:0;
   filter:drop-shadow(0 4px 10px rgba(107,63,92,.3));
-  pointer-events:none;
 }
 @media (max-width:640px){
-  .header-gif-girl{ width:52px; top:.3rem; left:.6rem; }
+  .header-gif-girl{ width:74px; }
 }
 .logo-img{
-  max-width:min(560px, 88vw);
+  max-width:min(500px, 72vw);
   width:100%;
   height:auto;
   filter:drop-shadow(0 6px 14px rgba(107,63,92,.25));
