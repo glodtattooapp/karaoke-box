@@ -48,6 +48,12 @@
           <div class="tv-playing" id="tv-playing" hidden>
             <div class="tv-video-wrap" id="tv-video-wrap" hidden>
               <div id="yt-player"></div>
+              <div class="tv-error" id="tv-error" hidden>
+                <p class="tv-error-title">can't play this one here</p>
+                <p class="tv-error-sub" id="tv-error-sub">the owner has disabled embedding for this video</p>
+                <a id="tv-error-link" class="pill-btn primary small" href="#" target="_blank" rel="noopener">open on YouTube</a>
+                <button id="tv-error-skip" class="pill-btn ghost small" type="button">skip to next</button>
+              </div>
             </div>
             <div class="tv-no-video" id="tv-no-video" hidden>
               <p class="np-label">now singing</p>
@@ -74,11 +80,21 @@
             <input type="range" id="tv-volume-slider" min="0" max="100" value="70">
           </div>
           <div class="tv-transport-buttons">
-            <button id="tv-btn-restart" class="tv-round-btn" title="restart">&#9198;</button>
-            <button id="tv-btn-back" class="tv-round-btn" title="back 10s">&#9194;</button>
-            <button id="tv-btn-playpause" class="tv-round-btn tv-round-btn-main" title="play/pause">&#9654;</button>
-            <button id="tv-btn-fwd" class="tv-round-btn" title="forward 10s">&#9193;</button>
-            <button id="tv-btn-skip" class="tv-round-btn" title="skip song">&#9197;</button>
+            <button id="tv-btn-restart" class="tv-round-btn" title="restart">
+              <svg viewBox="0 0 16 16" width="16" height="16"><rect x="2" y="3" width="2" height="10" fill="currentColor"/><polygon points="14,3 14,13 5,8" fill="currentColor"/></svg>
+            </button>
+            <button id="tv-btn-back" class="tv-round-btn" title="back 10s">
+              <svg viewBox="0 0 16 16" width="16" height="16"><polygon points="8,3 8,13 1,8" fill="currentColor"/><polygon points="15,3 15,13 8,8" fill="currentColor"/></svg>
+            </button>
+            <button id="tv-btn-playpause" class="tv-round-btn tv-round-btn-main" title="play/pause">
+              <svg viewBox="0 0 16 16" width="16" height="16"><polygon points="4,2 14,8 4,14" fill="currentColor"/></svg>
+            </button>
+            <button id="tv-btn-fwd" class="tv-round-btn" title="forward 10s">
+              <svg viewBox="0 0 16 16" width="16" height="16"><polygon points="1,3 1,13 8,8" fill="currentColor"/><polygon points="8,3 8,13 15,8" fill="currentColor"/></svg>
+            </button>
+            <button id="tv-btn-skip" class="tv-round-btn" title="skip song">
+              <svg viewBox="0 0 16 16" width="16" height="16"><polygon points="2,3 2,13 11,8" fill="currentColor"/><rect x="12" y="3" width="2" height="10" fill="currentColor"/></svg>
+            </button>
           </div>
         </div>
 

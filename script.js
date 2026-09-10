@@ -136,20 +136,39 @@ window.onYouTubeIframeAPIReady = function(){
     events: {
       onReady: () => { ytReady = true; },
       onStateChange: onPlayerStateChange,
+      onError: onPlayerError,
     }
   });
 };
+
+function onPlayerError(e){
+  const sub = $("#tv-error-sub");
+  const link = $("#tv-error-link");
+  if(e.data === 101 || e.data === 150){
+    sub.textContent = "the owner has disabled embedding for this video";
+  } else if(e.data === 100){
+    sub.textContent = "this video is private or was removed";
+  } else {
+    sub.textContent = "something went wrong playing this one";
+  }
+  if(currentSong && currentSong.url) link.href = currentSong.url;
+  $("#tv-error").hidden = false;
+  stopProgressTimer();
+}
+
+const ICON_PLAY = `<svg viewBox="0 0 16 16" width="16" height="16"><polygon points="4,2 14,8 4,14" fill="currentColor"/></svg>`;
+const ICON_PAUSE = `<svg viewBox="0 0 16 16" width="16" height="16"><rect x="4" y="2" width="3" height="12" fill="currentColor"/><rect x="9" y="2" width="3" height="12" fill="currentColor"/></svg>`;
 
 function onPlayerStateChange(e){
   if(e.data === YT.PlayerState.ENDED){
     finishSong();
   }
   if(e.data === YT.PlayerState.PLAYING){
-    $("#tv-btn-playpause").textContent = "⏸";
+    $("#tv-btn-playpause").innerHTML = ICON_PAUSE;
     startProgressTimer();
   }
   if(e.data === YT.PlayerState.PAUSED){
-    $("#tv-btn-playpause").textContent = "▶";
+    $("#tv-btn-playpause").innerHTML = ICON_PLAY;
     stopProgressTimer();
   }
 }
@@ -195,7 +214,8 @@ function stopVideo(){
   $("#tv-time-total").textContent = "00:00:00";
   $("#tv-scrub-fill").style.width = "0%";
   $("#tv-scrub-handle").style.left = "0%";
-  $("#tv-btn-playpause").textContent = "▶";
+  $("#tv-btn-playpause").innerHTML = ICON_PLAY;
+  $("#tv-error").hidden = true;
   tvVideoWrap.hidden = true;
   tvTitleText.textContent = "ferris_player.exe";
 }
@@ -222,6 +242,7 @@ function playNextSong(){
     tvNoVideo.hidden = true;
     tvManualControls.hidden = true;
     tvVideoWrap.hidden = false;
+    $("#tv-error").hidden = true;
     tvTitleText.textContent = `${song.title} — ${song.singer}`;
     ytPlayer.loadVideoById(videoId);
     ytPlayer.playVideo();
@@ -280,6 +301,7 @@ $("#tv-btn-skip").addEventListener("click", () => {
     playNextSong();
   }
 });
+$("#tv-error-skip").addEventListener("click", () => playNextSong());
 
 const scrubTrack = $("#tv-scrub-track");
 function seekFromEvent(e){
